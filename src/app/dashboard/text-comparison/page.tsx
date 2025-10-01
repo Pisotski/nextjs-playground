@@ -20,6 +20,11 @@ const menu: method[] = [
     explanation: "lorem ipsum",
     api: "/api/calculate-cosine",
   },
+  {
+    methodName: "Ask LLM",
+    explanation: "lorem ipsum",
+    api: "/api/text-similarity-llm",
+  },
 ];
 
 export default function ({ children }: { children: React.ReactNode }) {
@@ -27,10 +32,13 @@ export default function ({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<number | null>(null);
+  const [reasoning, setReasoning] = useState<string | null>("");
 
   const compareTexts = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setResult(null);
+    setReasoning("");
     const formData = new FormData(e.currentTarget);
 
     try {
@@ -40,7 +48,8 @@ export default function ({ children }: { children: React.ReactNode }) {
       });
       const res = await response.json();
       if (res.success) {
-        setResult(res.data);
+        setResult(Number(res.data));
+        if (res.reasoning) setReasoning(res.reasoning);
       } else {
         setError(res.error || "Something went wrong");
       }
@@ -58,7 +67,7 @@ export default function ({ children }: { children: React.ReactNode }) {
         {menu.map((method: method) => (
           <div
             key={method.methodName}
-            className={`p-2 -skew-x-24 ${
+            className={`p-2 -skew-x-24 min-w-[160px] ${
               currMethod.methodName === method.methodName
                 ? "bg-amber-700"
                 : "bg-gray-700"
@@ -130,6 +139,7 @@ export default function ({ children }: { children: React.ReactNode }) {
                   {` (${result.toFixed(3)})`}
                 </span>
                 <div className="ml-auto">{`${result}`}</div>
+                {reasoning && <div className="ml-auto">{`${reasoning}`}</div>}
               </div>
             ) : (
               <div style={{ visibility: "hidden" }}>

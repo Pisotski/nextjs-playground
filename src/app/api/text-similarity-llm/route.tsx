@@ -1,4 +1,5 @@
-import { jaccardSimilarity } from "@/app/api/jaccard-similarity/helpers";
+import { textSimilarityInstruction as instruction } from "@/app/api/text-similarity-llm/helpers";
+import { client } from "@/lib/openai-helpers";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -6,14 +7,19 @@ export async function POST(request: NextRequest) {
     const data = await request.formData();
     const leftSide = data.get("textLeft");
     const rightSide = data.get("textRight");
-    if (typeof leftSide !== "string" || typeof rightSide !== "string") {
-      throw new Error("leftSide or rightSide is missing or not a string");
-    }
-    const result = jaccardSimilarity(leftSide, rightSide);
+    const citations = ` Gold Citation: "${leftSide}". Generated Answer: "${rightSide}"`;
+    const response = await client.responses.create({
+      model: "gpt-5",
+      input: instruction + citations,
+    });
+
+    console.log(response.output_text);
+    const answerObject = JSON.parse(response.output_text);
     return NextResponse.json(
       {
         success: true,
-        data: result,
+        data: answerObject.score,
+        reasoning: answerObject.reasoning,
       },
       { status: 200 }
     );

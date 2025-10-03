@@ -9,7 +9,7 @@ export default function Sidebar() {
     },
     {
       linkName: "Chat",
-      route: "/dashboard/chat",
+      route: "/dashboard/new",
     },
     {
       linkName: "Home",

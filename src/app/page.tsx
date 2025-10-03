@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="flex justify-center items-center h-screen border border-red-400">
       <Link href="dashboard">
-        <Button>Enter</Button>
+        <Button buttonName={"Enter"} />
       </Link>
     </div>
   );
